@@ -19,20 +19,10 @@ commands you give it.
 ### To run on modulus.
 
 1. Use demeteorizer to create a modulus-compatible 
-project package.
+project package. On the terminal, `npm install -g modulus demeteorizer` and then from the project directory: `demeteorizer`.
 
-`npm install -g modulus demeteorizer`
-
-from the project directory:
-`demeteorizer`
-
-2. slightly modify the `.demeteorized` directory's
-`package.json` to use a sunos compatible phantomjs build.
-
-Replace the existing phantomjs line in the `.demeteorized/package.json`
-with the following:
-
-`"phantomjs-sun": "https://registry.npmjs.org/phantomjs-sun/-/phantomjs-sun-1.9.1-1.tgz",`
+2. Slightly modify the `.demeteorized` directory's `package.json` to use a SunOS compatible phantomjs build. Replace the existing phantomjs line in the `.demeteorized/package.json`
+with the following: `"phantomjs-sun": "https://registry.npmjs.org/phantomjs-sun/-/phantomjs-sun-1.9.1-1.tgz",`
 
 3. `modulus deploy` from the `.demeteorized` directory as you would a normal project.
 
