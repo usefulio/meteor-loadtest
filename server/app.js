@@ -25,6 +25,10 @@ Load.new({
 		console.log('Average load time of ', averageLoadTime, 'ms for ', loadTimes.length, ' clients.');
 
 		// execute a test, all params are required
+		// NOTE that the bodies of the action and check
+		// functions run within the context of the client
+		// browser and have no access to scope variables
+		// in the rest of this file
 		swarm.run({
 			// the function that you want each client to run
 			action: function(){
