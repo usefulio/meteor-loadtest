@@ -1,12 +1,16 @@
 Load = {
 	_pages: []
 	, _loadTimes: []
+	, _ddpLoadTimes: []
 };
 
 _.extend(Load, {
 	new: function(config){
 		var self = this;
 		this.config = config;
+		this._pages = [];
+		this._loadTimes = [];
+		this._ddpLoadTimes = [];
 		this._killAll(function(){
 			self._spawnClients(config.url, config.numberOfClients, config.ready);
 		});
@@ -21,28 +25,47 @@ _.extend(Load, {
 		// right now we spawn 1 phantom for every 50 tabs
 		var self = this
 			, numberOfPhantoms = Math.ceil(numberOfClients / 50)
-			, firstConnect = function(url, resolve, reject){
-				var start = Date.now();
+			, firstConnect = function(url, waitFor, resolve, reject){
+				// `this` in this context is the phantomjs page object 
 
-				this.onConsoleMessage = function(msg) {
+				var page = this
+					, start = Date.now()
+				 	, loadTime
+					, waitFor = eval("("+waitFor+")");
+
+				page.onConsoleMessage = function(msg) {
 					console.log(msg);
 				};
 
-				// `this` in this context is the phantomjs page object 
-				this.open(url, function(status){
+				page.open(url, function(status){
+					var page = this;
 					if(status !== "success"){
 						return reject(new Error("Cannot load " + url));
 					}
-					resolve(Date.now() - start);
+					
+					loadTime = Date.now() - start;
+
+					waitFor(function(){
+						return page.evaluate(function(){
+							return DDP && DDP._allSubscriptionsReady();
+						})
+					}, function(result){
+						resolve({
+							loadTime: loadTime
+							, ddpLoadTime: Date.now() - start
+						})
+					}, 15000); /* 15 second timeout by default for DDP load */
 				});
 			}
-			, onConnected = function(loadTime){
-				self._loadTimes.push(loadTime);
+			, onConnected = function(result){
+				self._loadTimes.push(result.loadTime);
+				self._ddpLoadTimes.push(result.ddpLoadTime);
+
 				if(self._loadTimes.length === numberOfClients){
 					// XXX Make isReady reactive and useful
 					self._isReady = true;
 					// XXX in the future lock down this api, but for now just pass ourselves
-					callback(self, self._loadTimes.concat());
+					callback(self, self._loadTimes.concat(), self._ddpLoadTimes.concat());
 				}
 			};
 
@@ -57,7 +80,7 @@ _.extend(Load, {
 				for(var i = 0; i < 50; i++){
 					var page = phantom.createPage();
 					self._pages.push(page);
-					page.run(url, firstConnect).then(onConnected);
+					page.run(url, Load._waitForAsString, firstConnect).then(onConnected);
 				}
 			});
 		}

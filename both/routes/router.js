@@ -1,7 +1,7 @@
 Router.configure({
-	notFoundTemplate: 'NotFound'
-	, loadingTemplate: 'Loading'
-	, templateNameConverter: 'upperCamelCase'
+	// notFoundTemplate: 'NotFound'
+	// , loadingTemplate: 'Loading'
+	templateNameConverter: 'upperCamelCase'
 	, routeControllerNameConverter: 'upperCamelCase'
     , layoutTemplate: 'MasterLayout'
 });

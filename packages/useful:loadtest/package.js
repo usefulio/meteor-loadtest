@@ -17,8 +17,7 @@ Package.onUse(function(api) {
 
 	api.versionsFrom('1.0');
 
-	api.addFiles('loadtest.js');
-	api.addFiles(['server/load.js', 'server/test.js'], ['server']);
+	api.addFiles(['server/phridge.js','server/load.js', 'server/test.js'], ['server']);
 
 	api.export('phridge');
 	api.export('Load');
