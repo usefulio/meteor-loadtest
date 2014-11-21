@@ -1,10 +1,6 @@
 {
   "dependencies": [
     [
-      "gadicohen:phantomjs",
-      "0.0.2"
-    ],
-    [
       "meteor",
       "1.1.3"
     ],

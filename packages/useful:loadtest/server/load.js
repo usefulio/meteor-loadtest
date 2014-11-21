@@ -1,3 +1,5 @@
+var PAGES_PER_PHANTOM = process.env.PAGES_PER_PHANTOM || 10;
+
 Load = {
 	_pages: []
 	, _loadTimes: []
@@ -17,14 +19,14 @@ _.extend(Load, {
 	}
 	, _killAll: function(callback){
 		phridge.disposeAll().then(function(){
-			Npm.require('child_process').exec("killall phantomjs");
+			// Npm.require('child_process').exec("killall phantomjs");
 			callback();
 		});
 	}
 	, _spawnClients: function(url, numberOfClients, callback){
-		// right now we spawn 1 phantom for every 50 tabs
+		// right now we spawn 1 phantom for every PAGES_PER_PHANTOM tabs
 		var self = this
-			, numberOfPhantoms = Math.ceil(numberOfClients / 50)
+			, numberOfPhantoms = Math.ceil(numberOfClients / PAGES_PER_PHANTOM)
 			, firstConnect = function(url, waitFor, resolve, reject){
 				// `this` in this context is the phantomjs page object 
 
@@ -33,13 +35,14 @@ _.extend(Load, {
 				 	, loadTime
 					, waitFor = eval("("+waitFor+")");
 
-				page.onConsoleMessage = function(msg) {
-					console.log(msg);
-				};
+				// page.onConsoleMessage = function(msg) {
+				// 	console.log(msg);
+				// };
 
 				page.open(url, function(status){
 					var page = this;
 					if(status !== "success"){
+						console.log("could not load url", + url, " status ", status);
 						return reject(new Error("Cannot load " + url));
 					}
 					
@@ -47,7 +50,7 @@ _.extend(Load, {
 
 					waitFor(function(){
 						return page.evaluate(function(){
-							return DDP && DDP._allSubscriptionsReady();
+							return typeof DDP !== "undefined" && DDP._allSubscriptionsReady();
 						})
 					}, function(result){
 						resolve({
@@ -60,6 +63,8 @@ _.extend(Load, {
 			, onConnected = function(result){
 				self._loadTimes.push(result.loadTime);
 				self._ddpLoadTimes.push(result.ddpLoadTime);
+
+				console.log(self._loadTimes.length, ' pages ready.');
 
 				if(self._loadTimes.length === numberOfClients){
 					// XXX Make isReady reactive and useful
@@ -77,7 +82,7 @@ _.extend(Load, {
 				// XXX accept a handler for onConsoleMessage
 				loadImages: false
 			}).then(function(phantom){
-				for(var i = 0; i < 50; i++){
+				for(var i = 0; i < PAGES_PER_PHANTOM; i++){
 					var page = phantom.createPage();
 					self._pages.push(page);
 					page.run(url, Load._waitForAsString, firstConnect).then(onConnected);
@@ -127,6 +132,7 @@ _.extend(Load, {
 });
 
 // XXX this should have test, ready, failed, timeout
+// and should be cleaned up
 // it is adapted from https://github.com/ariya/phantomjs/blob/master/examples/waitfor.js
 
 /**
@@ -163,7 +169,7 @@ waitFor = function(testFx, onReady, timeOutMillis) {
                     typeof(onReady) === "string" ? eval(onReady) : onReady(condition); //< Do what it's supposed to do once the condition is fulfilled
                 }
             }
-        }, 100); //< repeat check every 250ms
+        }, 100); //< repeat check every 100ms
 };
 
 Load._waitForAsString = waitFor.toString();

@@ -13,8 +13,6 @@ Package.onUse(function(api) {
 
 	api.use('underscore');
 
-	api.use('gadicohen:phantomjs');
-
 	api.versionsFrom('1.0');
 
 	api.addFiles(['server/phridge.js','server/load.js', 'server/test.js'], ['server']);

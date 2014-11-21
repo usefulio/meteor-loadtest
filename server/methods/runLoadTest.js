@@ -8,6 +8,7 @@ function average(durations){
 
 Meteor.methods({
 	runLoadTest: function(url, numberOfClients){
+		console.log('running load test against ', url, ' with ', numberOfClients);
 		Load.new({
 			// url you want to connect to
 			url: url
