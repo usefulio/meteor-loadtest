@@ -1,4 +1,6 @@
 var PAGES_PER_PHANTOM = process.env.PAGES_PER_PHANTOM || 10;
+console.log('PAGES_PER_PHANTOM is ', PAGES_PER_PHANTOM);
+
 
 Load = {
 	_pages: []
@@ -75,6 +77,7 @@ _.extend(Load, {
 			};
 
 		// connect the desired number of clients
+		console.log('Using ', numberOfPhantoms, ' phantoms with ', PAGES_PER_PHANTOM, ' tabs per process.');
 		for(var i = 0; i < numberOfPhantoms; i++){
 			phridge.spawn({
 				// XXX accept phridge options

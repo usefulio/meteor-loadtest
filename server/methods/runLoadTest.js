@@ -24,6 +24,7 @@ Meteor.methods({
 				console.log('Average DDP load time of ', averageDDPLoadTime, 'ms for ', ddpLoadTimes.length, ' clients.');
 				Commands.insert({
 					url: url
+					, pagesPerPhantom: process.env.PAGES_PER_PHANTOM || 10
 					, numberOfClients: numberOfClients
 					, loadTimes: loadTimes
 					, averageLoadTime: averageLoadTime
